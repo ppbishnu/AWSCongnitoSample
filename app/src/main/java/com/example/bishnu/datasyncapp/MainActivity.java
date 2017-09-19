@@ -1,12 +1,28 @@
 package com.example.bishnu.datasyncapp;
 
 import android.Manifest;
+import android.animation.ValueAnimator;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutCompat;
+import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amazonaws.mobileconnectors.cognito.CognitoSyncManager;
@@ -25,6 +41,14 @@ public class MainActivity extends AppCompatActivity {
     private String[] permissionRequiredList = new String[]{Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.INTERNET};
     private CognitoSyncManager client;
     private Dataset dataset;
+    private EditText eventDescriptionTV;
+    private EditText timingTV;
+    private Button syncDataBtn;
+    private RecyclerView eventListRV;
+    private final List<Record> eventRecordList = new ArrayList<>();
+    private EvenListAdapter evenListAdapter;
+    private TextView separator;
+    private CardView cardViewAddEvent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +60,123 @@ public class MainActivity extends AppCompatActivity {
             // Initialize the Amazon Cognito credentials provider
             initCredentialProvider();
         }
+        initView();
+        initListner();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.add_event_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.event_icon: {
+                expandAndCollappsEventCardview( cardViewAddEvent.getLayoutParams().height == 0);
+                return true;
+            }
+            default: {
+                return super.onOptionsItemSelected(item);
+            }
+        }
+    }
+
+    private void expandAndCollappsEventCardview(boolean isExpandView) {
+        ValueAnimator valueAnimator = ValueAnimator.ofInt(cardViewAddEvent.getMeasuredHeight(), dpToPx(isExpandView?70:0));
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                ViewGroup.LayoutParams layoutParams = cardViewAddEvent.getLayoutParams();
+                layoutParams.height = (Integer) valueAnimator.getAnimatedValue();
+                cardViewAddEvent.setLayoutParams(layoutParams);
+            }
+        });
+        valueAnimator.setDuration(300);
+        valueAnimator.start();
+    }
+
+    private int dpToPx(int dp) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
+    }
+
+    private void initListner() {
+        syncDataBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (timingTV != null && eventDescriptionTV != null) {
+                    addData(eventDescriptionTV.getText().toString(), timingTV.getText().toString());
+                    eventRecordList.clear();
+                    eventRecordList.addAll(dataset.getAllRecords());
+                    evenListAdapter.notifyDataSetChanged();
+                    eventDescriptionTV.setText("");
+                    timingTV.setText("");
+                    timingTV.setVisibility(View.GONE);
+                    separator.setVisibility(View.GONE);
+                    syncDataBtn.setVisibility(View.GONE);
+                }
+            }
+        });
+        eventDescriptionTV.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (charSequence.length() > 0) {
+                    timingTV.setVisibility(View.VISIBLE);
+                    separator.setVisibility(View.VISIBLE);
+                } else {
+                    timingTV.setVisibility(View.GONE);
+                    separator.setVisibility(View.GONE);
+                    syncDataBtn.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+        timingTV.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (charSequence.length() > 0) {
+                    syncDataBtn.setVisibility(View.VISIBLE);
+                } else {
+                    syncDataBtn.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
+    }
+
+    private void initView() {
+        eventDescriptionTV = (EditText) findViewById(R.id.event_description_textview);
+        timingTV = (EditText) findViewById(R.id.timing_textview);
+        syncDataBtn = (Button) findViewById(R.id.syncData_button);
+        separator = (TextView) findViewById(R.id.separator_textview);
+        eventListRV = (RecyclerView) findViewById(R.id.event_list_recycle_view);
+        eventRecordList.clear();
+        cardViewAddEvent = (CardView) findViewById(R.id.card_add);
+        eventRecordList.addAll(dataset.getAllRecords());
+        eventListRV.setLayoutManager(new GridLayoutManager(getApplicationContext(), 3));
+        evenListAdapter = new EvenListAdapter(eventRecordList, getApplicationContext());
+        eventListRV.setAdapter(evenListAdapter);
     }
 
     private void initCredentialProvider() {
@@ -43,12 +184,11 @@ public class MainActivity extends AppCompatActivity {
             client = CognitoSyncApdater.getCognitoSyncManagerClient(getApplicationContext());
         }
         dataset = openOrCreateDatabase();
-        addData();
     }
 
-    private void addData() {
+    private void addData(String value, String key) {
         if (dataset != null) {
-            dataset.put("lunch", "01:30");
+            dataset.put(value, key);
             syncData(dataset);
         }
     }
@@ -62,10 +202,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void syncData(Dataset dataset) {
+    private void syncData(final Dataset dataset) {
         dataset.synchronize(new Dataset.SyncCallback() {
             @Override
-            public void onSuccess(Dataset dataset, List<Record> updatedRecords) {
+            public void onSuccess(Dataset data, List<Record> updatedRecords) {
                 Log.d("TAG", "onSuccess: " + dataset.get("lunch").toString());
             }
 
@@ -143,8 +283,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showToastIfPermissionIsNotGranted(String requestedPermission) {
-        Toast.makeText(this,  new StringBuilder("Please accept the " + requestedPermission + "permission or application will be closed" ).toString()
+        Toast.makeText(this, new StringBuilder("Please accept the " + requestedPermission + "permission or application will be closed").toString()
                 , Toast.LENGTH_SHORT).show();
-        }
     }
+}
 
