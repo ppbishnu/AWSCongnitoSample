@@ -4,7 +4,7 @@
 <item android:enabled="true"
     android:title="Add Event"
     android:visible="true"
-    android:icon="@drawable/event_icon"
+    android:icon="@drawable/plus_icon"
     app:showAsAction="always"
     android:id="@+id/event_icon"
     ></item>

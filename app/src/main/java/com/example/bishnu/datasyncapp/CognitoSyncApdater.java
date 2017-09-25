@@ -11,14 +11,14 @@ import com.amazonaws.regions.Regions;
  */
 
 public class CognitoSyncApdater {
-    private static final String IDENTITY_POOL_ID = "ap-south-1:74e91870-520c-4db1-9f3d-92ee7310a9f0";
+    private static final String IDENTITY_POOL_ID = "us-east-1:058657d2-fb5f-4384-90dc-8a425f4e0257";
     private static CognitoSyncManager cognitoSyncManager;
     private static CognitoSyncApdater cognitoSyncApdater;
 
     private CognitoSyncApdater(Context context) {
         cognitoSyncManager = new CognitoSyncManager(
                 context,
-                Regions.AP_SOUTH_1,
+                Regions.US_EAST_1,
                 getCredentialProvider(context));
     }
 
@@ -35,7 +35,7 @@ public class CognitoSyncApdater {
         CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
                 context,
                 IDENTITY_POOL_ID // Identity pool ID
-                , Regions.AP_SOUTH_1 // Region
+                , Regions.US_EAST_1 // Region
         );
         return credentialsProvider;
     }

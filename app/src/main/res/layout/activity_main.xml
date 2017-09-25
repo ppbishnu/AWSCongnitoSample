@@ -7,68 +7,82 @@
     android:background="@android:color/white"
     tools:context="com.example.bishnu.datasyncapp.MainActivity">
 
-    <android.support.v7.widget.CardView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@android:color/white"
-        app:cardElevation="5dp"
-        android:id="@+id/card_add">
+        android:id="@+id/card_view_coverLL"
+        android:background="@color/colorPrimary"
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/event_timing_pair_ll"
+        <android.support.v7.widget.CardView
+            android:id="@+id/card_add"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:orientation="horizontal"
-            android:padding="8dp">
+            android:layout_height="70dp"
+            app:cardBackgroundColor="@android:color/white"
+            app:cardElevation="5dp"
+            app:cardCornerRadius="4dp"
+            android:layout_gravity="center"
+            android:layout_margin="10dp">
 
-            <EditText
-                android:id="@+id/event_description_textview"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:id="@+id/event_timing_pair_ll"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="5"
-                android:textSize="14sp"
-                android:gravity="center"
-                android:hint="Enter New Event" />
+                android:layout_centerHorizontal="true"
+                android:orientation="horizontal"
+                android:padding="8dp">
 
-            <TextView
-                android:layout_width="0dp"
-                android:id="@+id/separator_textview"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="-"
-                android:visibility="gone"/>
+                <EditText
+                    android:id="@+id/event_description_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="5"
+                    android:gravity="center"
+                    android:hint="Enter New Event"
+                    android:textColor="@android:color/black"
+                    android:textSize="14sp" />
 
-            <EditText
-                android:id="@+id/timing_textview"
-                android:layout_width="0dp"
-                android:textSize="14sp"
-                android:layout_height="wrap_content"
-                android:layout_weight="5"
-                android:gravity="center"
-                android:hint="Set Time"
-                android:visibility="gone"/>
+                <TextView
+                    android:id="@+id/separator_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="-"
+                    android:visibility="gone" />
 
-            <Button
-                android:id="@+id/syncData_button"
-                android:layout_width="0dp"
-                android:layout_height="36dp"
-                android:background="#38f"
-                android:padding="10dp"
-                android:layout_weight="4"
-                android:text="Add"
-                android:textColor="#fff"
-                android:visibility="gone"/>
-        </LinearLayout>
-    </android.support.v7.widget.CardView>
+                <EditText
+                    android:id="@+id/timing_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="5"
+                    android:gravity="center"
+                    android:hint="Set Time"
+                    android:textColor="@android:color/black"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/syncData_button"
+                    android:layout_width="0dp"
+                    android:layout_height="36dp"
+                    android:layout_weight="4"
+                    android:background="#38f"
+                    android:padding="10dp"
+                    android:text="Add"
+                    android:textColor="#fff"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </android.support.v7.widget.CardView>
+    </LinearLayout>
+
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/event_list_recycle_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/card_add"
+        android:layout_below="@id/card_view_coverLL"
         android:background="@android:color/white"
         android:padding="10dp" />
 

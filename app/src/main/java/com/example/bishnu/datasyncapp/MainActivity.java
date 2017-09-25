@@ -7,9 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -22,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private final List<Record> eventRecordList = new ArrayList<>();
     private EvenListAdapter evenListAdapter;
     private TextView separator;
-    private CardView cardViewAddEvent;
+    private LinearLayout addEventViewLL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +74,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.event_icon: {
-                expandAndCollappsEventCardview( cardViewAddEvent.getLayoutParams().height == 0);
+                boolean isExpanded =  addEventViewLL.getLayoutParams().height == 0;
+                item.setIcon(getDrawable(isExpanded?R.drawable.cross_icon:R.drawable.plus_icon));
+                expandAndCollappsEventCardview(isExpanded);
                 return true;
             }
             default: {
@@ -85,13 +86,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void expandAndCollappsEventCardview(boolean isExpandView) {
-        ValueAnimator valueAnimator = ValueAnimator.ofInt(cardViewAddEvent.getMeasuredHeight(), dpToPx(isExpandView?70:0));
+        ValueAnimator valueAnimator = ValueAnimator.ofInt(addEventViewLL.getMeasuredHeight(), dpToPx(isExpandView?90:0));
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                ViewGroup.LayoutParams layoutParams = cardViewAddEvent.getLayoutParams();
+                ViewGroup.LayoutParams layoutParams = addEventViewLL.getLayoutParams();
                 layoutParams.height = (Integer) valueAnimator.getAnimatedValue();
-                cardViewAddEvent.setLayoutParams(layoutParams);
+                addEventViewLL.setLayoutParams(layoutParams);
             }
         });
         valueAnimator.setDuration(300);
@@ -172,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
         separator = (TextView) findViewById(R.id.separator_textview);
         eventListRV = (RecyclerView) findViewById(R.id.event_list_recycle_view);
         eventRecordList.clear();
-        cardViewAddEvent = (CardView) findViewById(R.id.card_add);
+        addEventViewLL = (LinearLayout) findViewById(R.id.card_view_coverLL);
         eventRecordList.addAll(dataset.getAllRecords());
         eventListRV.setLayoutManager(new GridLayoutManager(getApplicationContext(), 3));
         evenListAdapter = new EvenListAdapter(eventRecordList, getApplicationContext());
